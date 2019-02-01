@@ -1,0 +1,19 @@
+default: &default
+  adapter: mysql2
+  host: localhost
+  pool: 50
+  port: 3306
+  username: aqibp
+  password: 12345
+
+development:
+  <<: *default
+  database: scraping_development
+
+test:
+  <<: *default
+  database: scraping_test
+
+production:
+  <<: *default
+  database: scraping_production
