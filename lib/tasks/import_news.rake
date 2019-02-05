@@ -13,7 +13,8 @@ namespace :import_news do
       date_text = row.search('table.ArticleStats').search('td')[1].text.strip
       date = DateTime.parse(date_text)
       if 7.days.ago < date.to_date  && date <= Date.today
-        Article.create(name: title, link: link,posted_date: date)
+        data = '{"img": null, "url": "'+link+'", "type": "link", "embed": null, "title": "'+title+'", "domain": "'+URI.parse(link).host+'", "thumbnail": null, "description": null, "providerName": null, "publishedTime": null}'
+        Article.create(slug: title.parameterize, title: title, type: "link", data: JSON.parse(data), category_name: "newsboat", user_id: @user.id, rate: 100, category_id: @category.id)
       end
     end
 
@@ -27,13 +28,16 @@ namespace :import_news do
     idexonline_rows = idexonline_doc.at('div.short-articles').xpath('./div')
 
     idexonline_rows.each do |row|
-      title = row.search('div.title').text
+      title = row.search('div.title').search('h2').text
+      title = row.search('div.title').search('h1').text if title.blank?
       link = Article::WEBDOMAIN.second+row.search('p.article-text').xpath('./a').first['href']
       date_text = row.search('div.title').search('span.date').text
       date = DateTime.parse(date_text)
 
-      if 7.days.ago < date.to_date  && date  <= Date.today
-        Article.create(name: title, link: link, posted_date: date)
+      if 7.days.ago < date.to_date && date  <= Date.today
+        data = '{"img": null, "url": "'+link+'", "type": "link", "embed": null, "title": "'+title+'", "domain": "'+URI.parse(link).host+'", "thumbnail": null, "description": null, "providerName": null, "publishedTime": null}'
+
+        Article.create(slug: title.parameterize, title: title, type: "link", data: JSON.parse(data), category_name: "newsboat", user_id: @user.id, rate: 100, category_id: @category.id)
       end
     end
   end
@@ -56,31 +60,41 @@ namespace :import_news do
         date = DateTime.parse(date_text) if date_text.present?
       end
       if date.present?
-        if (7.days.ago < date.to_date  && date  <= Date.today)
-          Article.create(name: title, link: link, posted_date: date)
-        end
+        data = '{"img": null, "url": "'+link+'", "type": "link", "embed": null, "title": "'+title+'", "domain": "'+URI.parse(link).host+'", "thumbnail": null, "description": null, "providerName": null, "publishedTime": null}'
+        Article.create(slug: title.parameterize, title: title, type: "link", data: JSON.parse(data), category_name: "newsboat", user_id: @user.id, rate: 100, category_id: @category.id)
       end
     end
   end
 
 
   task :scrap_news_data => :environment do
+
+    @user = User.find_by(username: "newsboat")
+    if @user.blank?
+      @user = User.create!(username: "newsboat", password: "password", color: "Dark", active: true,
+                          settings: ' {"font": "Lato", "nsfw": false, "nsfw_media": false, "sidebar_color": "Gray", "notify_comments_replied": true, "notify_submissions_replied": true, "submission_small_thumbnail": true, "exclude_upvoted_submissions": false, "exclude_downvoted_submissions": true}')
+
+    end
+    @category = Category.find_by(name: "newsboat")
+
+    @category = Category.create(name: "newsboat", discription: "Here you'll find latest news about diamonds.", nsfw: false ,color: "Dark", active: true)  if @category.blank?
+
     begin
-       diamonds
-    rescue
-      puts "eerror in diamonds task"
+      diamonds
+    rescue => e
+      puts e
     end
 
     begin
       idexonline
-    rescue
-      puts "error in idexonline task"
+    rescue => e
+      puts e
     end
 
     begin
       thediamondloupe
-    rescue
-      puts "error in thediamondloupe task"
+    rescue => e
+      puts e
     end
   end
 
