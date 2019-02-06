@@ -14,7 +14,7 @@ namespace :import_news do
       date = DateTime.parse(date_text)
       if 7.days.ago < date.to_date  && date <= Date.today
         data = '{"img": null, "url": "'+link+'", "type": "link", "embed": null, "title": "'+title+'", "domain": "'+URI.parse(link).host+'", "thumbnail": null, "description": null, "providerName": null, "publishedTime": null}'
-        Article.create(slug: title.parameterize, title: title, type: "link", data: JSON.parse(data), category_name: "newsboat", user_id: @user.id, rate: 100, category_id: @category.id)
+        Article.create(slug: title.parameterize, title: title, type: "link", data: JSON.parse(data), category_name: "news", user_id: @user.id, rate: 100, category_id: @category.id)
       end
     end
 
@@ -37,7 +37,7 @@ namespace :import_news do
       if 7.days.ago < date.to_date && date  <= Date.today
         data = '{"img": null, "url": "'+link+'", "type": "link", "embed": null, "title": "'+title+'", "domain": "'+URI.parse(link).host+'", "thumbnail": null, "description": null, "providerName": null, "publishedTime": null}'
 
-        Article.create(slug: title.parameterize, title: title, type: "link", data: JSON.parse(data), category_name: "newsboat", user_id: @user.id, rate: 100, category_id: @category.id)
+        Article.create(slug: title.parameterize, title: title, type: "link", data: JSON.parse(data), category_name: "news", user_id: @user.id, rate: 100, category_id: @category.id)
       end
     end
   end
@@ -61,23 +61,23 @@ namespace :import_news do
       end
       if date.present?
         data = '{"img": null, "url": "'+link+'", "type": "link", "embed": null, "title": "'+title+'", "domain": "'+URI.parse(link).host+'", "thumbnail": null, "description": null, "providerName": null, "publishedTime": null}'
-        Article.create(slug: title.parameterize, title: title, type: "link", data: JSON.parse(data), category_name: "newsboat", user_id: @user.id, rate: 100, category_id: @category.id)
+        Article.create(slug: title.parameterize, title: title, type: "link", data: JSON.parse(data), category_name: "news", user_id: @user.id, rate: 100, category_id: @category.id)
       end
     end
   end
 
-
+  #rake import_news:scrap_news_data
   task :scrap_news_data => :environment do
 
-    @user = User.find_by(username: "newsboat")
+    @user = User.find_by(username: "newsbot")
     if @user.blank?
-      @user = User.create!(username: "newsboat", password: "password", color: "Dark", active: true,
+      @user = User.create!(username: "newsbot", password: "password", color: "Dark", active: true,
                           settings: ' {"font": "Lato", "nsfw": false, "nsfw_media": false, "sidebar_color": "Gray", "notify_comments_replied": true, "notify_submissions_replied": true, "submission_small_thumbnail": true, "exclude_upvoted_submissions": false, "exclude_downvoted_submissions": true}')
 
     end
-    @category = Category.find_by(name: "newsboat")
+    @category = Category.find_by(name: "news")
 
-    @category = Category.create(name: "newsboat", discription: "Here you'll find latest news about diamonds.", nsfw: false ,color: "Dark", active: true)  if @category.blank?
+    @category = Category.create(name: "news", description: "Here you'll find latest news about diamonds.", nsfw: false ,color: "Dark", active: true, settings:"null")  if @category.blank?
 
     begin
       diamonds
