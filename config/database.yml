@@ -4,16 +4,13 @@ default: &default
   pool: 50
   port: 3306
   username: root
-  password: 123
+  password: password
 
 development:
   <<: *default
-  database: Idea
+  database: home
 
-test:
-  <<: *default
-  database: scraping_test
 
 production:
   <<: *default
-  database: scraping_production
+  database: home
